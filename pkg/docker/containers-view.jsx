@@ -286,6 +286,22 @@ export class ContainerList extends React.Component {
             this.setState({ width: this.containerRef.current.clientWidth });
     }
 
+    handleComposeUpClick(event) {
+        cockpit.spawn(["/mnt/user/unraid-data/bin/dj-docker.sh", "up"])
+            .fail(function(ex) {
+                console.log(event);
+                console.log(ex);
+            });
+    }
+
+    handleComposeDownClick(event) {
+        cockpit.spawn(["/mnt/user/unraid-data/bin/dj-docker.sh", "down"])
+        .fail(function(ex) {
+            console.log(event);
+            console.log(ex);
+        });
+    }
+
     render() {
         var filtered = this.state.containers.filter(function (container) {
             if (this.props.onlyShowRunning && !container.State.Running)
@@ -402,10 +418,15 @@ export class ContainerList extends React.Component {
             else
                 emptyCaption = _("No containers that match the current filter");
         }
+
+        var composeActions = <div className="pull-right">
+            <button className="pf-c-button pf-m-secondary btn-lg" onClick={this.handleComposeUpClick}>Compose Up</button>&nbsp;
+            <button className="pf-c-button pf-m-secondary btn-lg" onClick={this.handleComposeDownClick}>Compose Down</button>
+        </div>;
         
         return (
             <div ref={this.containerRef}>
-                <Listing.Listing title={_("Containers")} columnTitles={columnTitles} emptyCaption={emptyCaption}>
+                <Listing.Listing title={_("Containers")} columnTitles={columnTitles} emptyCaption={emptyCaption} actions={composeActions}>
                     {rows}
                 </Listing.Listing>
             </div>
