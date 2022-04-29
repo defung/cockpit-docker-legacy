@@ -287,7 +287,7 @@ export class ContainerList extends React.Component {
     }
 
     handleComposeUpClick(event) {
-        cockpit.spawn(["/mnt/user/unraid-data/bin/dj-docker.sh", "up"])
+        cockpit.spawn(["/usr/bin/dj-docker", "up"])
             .fail(function(ex) {
                 console.log(event);
                 console.log(ex);
@@ -295,7 +295,7 @@ export class ContainerList extends React.Component {
     }
 
     handleComposeDownClick(event) {
-        cockpit.spawn(["/mnt/user/unraid-data/bin/dj-docker.sh", "down"])
+        cockpit.spawn(["/usr/bin/dj-docker", "down"])
         .fail(function(ex) {
             console.log(event);
             console.log(ex);
