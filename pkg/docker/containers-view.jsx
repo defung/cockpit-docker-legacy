@@ -269,6 +269,10 @@ export class ContainerList extends React.Component {
         util.find_all_problems(this.problems, this.problems_client, this.service, self.setNewProblem);
     }
 
+    componentDidUpdate() {
+        this.onWindowResize();
+    }
+
     componentWillUnmount() {
         $(this.props.client).off('container.containers', this.containersChanged);
         $(this.props.client).off('container.container-details', this.containersChanged);
@@ -278,7 +282,8 @@ export class ContainerList extends React.Component {
     }
 
     onWindowResize() {
-        this.setState({ width: this.containerRef.current.clientWidth })
+        if (this.containerRef.current.clientWidth != this.state.width)
+            this.setState({ width: this.containerRef.current.clientWidth });
     }
 
     render() {
@@ -397,7 +402,7 @@ export class ContainerList extends React.Component {
             else
                 emptyCaption = _("No containers that match the current filter");
         }
-
+        
         return (
             <div ref={this.containerRef}>
                 <Listing.Listing title={_("Containers")} columnTitles={columnTitles} emptyCaption={emptyCaption}>
