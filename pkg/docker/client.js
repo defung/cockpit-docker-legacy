@@ -855,3 +855,16 @@ function connect(address) {
 
     return connection;
 }
+
+function manage_error(reject, error, content) {
+    let content_o = {};
+    if (content) {
+        try {
+            content_o = JSON.parse(content);
+        } catch {
+            content_o.message = content;
+        }
+    }
+    const c = { ...error, ...content_o };
+    reject(c);
+}
