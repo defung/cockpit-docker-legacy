@@ -247,6 +247,8 @@ export class ContainerList extends React.Component {
     }
 
     componentDidMount() {
+        this.onWindowResize();
+
         var self = this;
         this.problems_client = cockpit.dbus('org.freedesktop.problems', { superuser: "try" });
         this.service = this.problems_client.proxy('org.freedesktop.Problems2', '/org/freedesktop/Problems2');
@@ -263,8 +265,6 @@ export class ContainerList extends React.Component {
         $(this.props.client).on('container.containers', this.containersChanged);
         $(this.props.client).on('container.container-details', this.containersChanged);
         this.service.addEventListener("Crash", this.newProblemOccurred);
-
-        this.onWindowResize();
 
         util.find_all_problems(this.problems, this.problems_client, this.service, self.setNewProblem);
     }
