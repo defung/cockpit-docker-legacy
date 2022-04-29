@@ -795,7 +795,7 @@ export function resizeContainersTTY(id, exec, width, height) {
     });
 }
 
-export function execContainer(system, id) {
+export function execContainer(id) {
     const args = {
         AttachStderr: true,
         AttachStdout: true,
@@ -805,7 +805,7 @@ export function execContainer(system, id) {
     };
 
     return new Promise((resolve, reject) => {
-        dockerCall("containers/" + id + "/exec", "POST", {}, system, JSON.stringify(args))
+        dockerCall("containers/" + id + "/exec", "POST", {}, JSON.stringify(args))
                 .then(reply => resolve(JSON.parse(reply)))
                 .catch(reject);
     });
