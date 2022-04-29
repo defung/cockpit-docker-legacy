@@ -259,10 +259,6 @@ class ContainerTerminal extends React.Component {
 
         if (this.props.containerStatus !== "running" && !this.state.opened)
             element = <EmptyStatePanel title={_("Container is not running")} />;
-        else if (this.state.errorMessage) {
-            element = <EmptyStatePanel title={_("Error occurred while connecting console: " + this.state.errorMessage)} />;
-            this.setState({ errorMessage: "" })
-        }
 
         return <>
             {element}
