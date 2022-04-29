@@ -28,6 +28,9 @@ import { search } from "./search";
 
 import * as Listing from 'cockpit-components-listing.jsx';
 import * as Select from 'cockpit-components-select.jsx';
+
+import ContainerLogs from './container-logs.jsx';
+
 import moment from 'moment';
 
 const _ = cockpit.gettext;
@@ -175,6 +178,12 @@ export class ContainerList extends React.Component {
         this.containersChanged = this.containersChanged.bind(this);
         this.setNewProblem = this.setNewProblem.bind(this);
         this.newProblemOccurred = this.newProblemOccurred.bind(this);
+
+        this.onWindowResize = this.onWindowResize.bind(this);
+
+        this.containerRef = React.createRef();
+
+        window.addEventListener('resize', this.onWindowResize);
     }
 
     navigateToContainer(container) {
@@ -254,6 +263,8 @@ export class ContainerList extends React.Component {
         $(this.props.client).on('container.container-details', this.containersChanged);
         this.service.addEventListener("Crash", this.newProblemOccurred);
 
+        this.onWindowResize();
+
         util.find_all_problems(this.problems, this.problems_client, this.service, self.setNewProblem);
     }
 
@@ -262,6 +273,11 @@ export class ContainerList extends React.Component {
         $(this.props.client).off('container.container-details', this.containersChanged);
         this.service.removeEventListener("Crash", this.newProblemOccurred);
         this.problems_client.close();
+        window.removeEventListener('resize', this.onWindowResize);
+    }
+
+    onWindowResize() {
+        this.setState({ width: this.containerRef.current.clientWidth })
     }
 
     render() {
@@ -338,6 +354,10 @@ export class ContainerList extends React.Component {
                     name: _("Details"),
                     renderer: ContainerDetails,
                     data: { container: container }
+                }, {
+                    name: _("Logs"),
+                    renderer: ContainerLogs,
+                    data: { containerId: container.Id, width: this.state.width }
                 }
             ];
             if (hasProblem) {
@@ -374,9 +394,11 @@ export class ContainerList extends React.Component {
         }
 
         return (
-            <Listing.Listing title={_("Containers")} columnTitles={columnTitles} emptyCaption={emptyCaption}>
-                {rows}
-            </Listing.Listing>
+            <div ref={this.containerRef}>
+                <Listing.Listing title={_("Containers")} columnTitles={columnTitles} emptyCaption={emptyCaption}>
+                    {rows}
+                </Listing.Listing>
+            </div>
         );
     }
 }

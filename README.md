@@ -65,3 +65,5 @@ The Cockpit team stopped caring in version 215, declaring they going 'in favor' 
 the cockpit-podman plugin is currently in development and is far from feature-complete.
 
 that doesnt stop RedHat from killing it ! but its OSS ! So let's fork !
+
+This also adds the "log" and "console" tabs from the official cockpit-podman repo.

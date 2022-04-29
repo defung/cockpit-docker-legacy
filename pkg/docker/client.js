@@ -21,6 +21,7 @@ import $ from "jquery";
 import cockpit from "cockpit";
 import { util } from "./util";
 import { docker } from "./docker";
+export const VERSION = "/v1.12/";
 
 function ignoreException(ex) {
     if (ex.status == 500 && ex.message && ex.message.indexOf("layer does not exist") === 0) {
@@ -771,4 +772,8 @@ export function instance() {
     if (!client)
         client = new DockerClient();
     return client;
+}
+
+export function getAddress() {
+    return "/var/run/docker.sock";
 }
