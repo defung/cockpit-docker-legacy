@@ -21,6 +21,7 @@ import $ from "jquery";
 import cockpit from "cockpit";
 import { util } from "./util";
 import { docker } from "./docker";
+export const VERSION = "/v1.12/";
 
 function ignoreException(ex) {
     if (ex.status == 500 && ex.message && ex.message.indexOf("layer does not exist") === 0) {
@@ -771,4 +772,100 @@ export function instance() {
     if (!client)
         client = new DockerClient();
     return client;
+}
+
+export function getAddress() {
+    return "/var/run/docker.sock";
+}
+
+export function resizeContainersTTY(id, exec, width, height) {
+    const args = {
+        h: height,
+        w: width,
+    };
+
+    let point = "containers/";
+    if (!exec)
+        point = "exec/";
+
+    return new Promise((resolve, reject) => {
+        dockerCall("" + point + id + "/resize", "POST", args)
+                .then(resolve)
+                .catch(reject);
+    });
+}
+
+export function execContainer(id) {
+    const args = {
+        AttachStderr: true,
+        AttachStdout: true,
+        AttachStdin: true,
+        Tty: true,
+        Cmd: ["/bin/sh"],
+    };
+
+    return new Promise((resolve, reject) => {
+        dockerCall("containers/" + id + "/exec", "POST", {}, JSON.stringify(args))
+                .then(reply => resolve(JSON.parse(reply)))
+                .catch(reject);
+    });
+}
+
+function dockerCall(name, method, args, body) {
+    const options = {
+        method: method,
+        path: VERSION + name,
+        body: body || "",
+        headers: { "Content-Type": "application/json" },
+        params: args,
+    };
+
+    return call(getAddress(), options);
+}
+
+/*
+ * Connects to the podman service, performs a single call, and closes the
+ * connection.
+ */
+async function call (address, parameters) {
+   const connection = connect(address);
+   const result = await connection.call(parameters);
+   connection.close();
+   return result;
+}
+
+function connect(address) {
+    /* This doesn't create a channel until a request */
+    const http = cockpit.http(address, { superuser: "require" });
+    const connection = {};
+
+    connection.call = function (options) {
+        return new Promise((resolve, reject) => {
+            options = options || {};
+            http.request(options)
+                    .then(resolve)
+                    .catch((error, content) => {
+                        manage_error(reject, error, content);
+                    });
+        });
+    };
+
+    connection.close = function () {
+        http.close();
+    };
+
+    return connection;
+}
+
+function manage_error(reject, error, content) {
+    let content_o = {};
+    if (content) {
+        try {
+            content_o = JSON.parse(content);
+        } catch {
+            content_o.message = content;
+        }
+    }
+    const c = { ...error, ...content_o };
+    reject(c);
 }

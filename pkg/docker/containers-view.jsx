@@ -28,6 +28,10 @@ import { search } from "./search";
 
 import * as Listing from 'cockpit-components-listing.jsx';
 import * as Select from 'cockpit-components-select.jsx';
+
+import ContainerLogs from './container-logs.jsx';
+import ContainerTerminal from './container-terminal.jsx';
+
 import moment from 'moment';
 
 const _ = cockpit.gettext;
@@ -175,6 +179,12 @@ export class ContainerList extends React.Component {
         this.containersChanged = this.containersChanged.bind(this);
         this.setNewProblem = this.setNewProblem.bind(this);
         this.newProblemOccurred = this.newProblemOccurred.bind(this);
+
+        this.onWindowResize = this.onWindowResize.bind(this);
+
+        this.containerRef = React.createRef();
+
+        window.addEventListener('resize', this.onWindowResize);
     }
 
     navigateToContainer(container) {
@@ -237,6 +247,8 @@ export class ContainerList extends React.Component {
     }
 
     componentDidMount() {
+        this.onWindowResize();
+
         var self = this;
         this.problems_client = cockpit.dbus('org.freedesktop.problems', { superuser: "try" });
         this.service = this.problems_client.proxy('org.freedesktop.Problems2', '/org/freedesktop/Problems2');
@@ -257,11 +269,21 @@ export class ContainerList extends React.Component {
         util.find_all_problems(this.problems, this.problems_client, this.service, self.setNewProblem);
     }
 
+    componentDidUpdate() {
+        this.onWindowResize();
+    }
+
     componentWillUnmount() {
         $(this.props.client).off('container.containers', this.containersChanged);
         $(this.props.client).off('container.container-details', this.containersChanged);
         this.service.removeEventListener("Crash", this.newProblemOccurred);
         this.problems_client.close();
+        window.removeEventListener('resize', this.onWindowResize);
+    }
+
+    onWindowResize() {
+        if (this.containerRef.current.clientWidth != this.state.width)
+            this.setState({ width: this.containerRef.current.clientWidth });
     }
 
     render() {
@@ -338,6 +360,14 @@ export class ContainerList extends React.Component {
                     name: _("Details"),
                     renderer: ContainerDetails,
                     data: { container: container }
+                }, {
+                    name: _("Logs"),
+                    renderer: ContainerLogs,
+                    data: { containerId: container.Id, width: this.state.width }
+                }, {
+                    name: _("Console"),
+                    renderer: ContainerTerminal,
+                    data: { containerId: container.Id, containerStatus: container.State.Status, width: this.state.width, tty: container.Config.Tty }
                 }
             ];
             if (hasProblem) {
@@ -372,11 +402,13 @@ export class ContainerList extends React.Component {
             else
                 emptyCaption = _("No containers that match the current filter");
         }
-
+        
         return (
-            <Listing.Listing title={_("Containers")} columnTitles={columnTitles} emptyCaption={emptyCaption}>
-                {rows}
-            </Listing.Listing>
+            <div ref={this.containerRef}>
+                <Listing.Listing title={_("Containers")} columnTitles={columnTitles} emptyCaption={emptyCaption}>
+                    {rows}
+                </Listing.Listing>
+            </div>
         );
     }
 }
