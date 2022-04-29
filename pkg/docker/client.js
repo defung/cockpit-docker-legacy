@@ -819,7 +819,7 @@ function dockerCall(name, method, args, body) {
         params: args,
     };
 
-    return rest.call(getAddress(), options);
+    return call(getAddress(), options);
 }
 
 /*
