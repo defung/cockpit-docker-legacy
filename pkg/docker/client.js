@@ -836,7 +836,7 @@ async function call (address, parameters) {
 
 function connect(address) {
     /* This doesn't create a channel until a request */
-    const http = cockpit.http(address, { superuser: "require" });
+    const http = cockpit.http(address, { superuser: "try" });
     const connection = {};
 
     connection.call = function (options) {

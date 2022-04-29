@@ -50,7 +50,7 @@ function init_model() {
             process = python.spawn([cockpit_atomic_storage], ["monitor"],
                                    {
                                        err: "ignore",
-                                       superuser: true
+                                       superuser: "try"
                                    })
                     .stream(function (data) {
                         // XXX - find the newlines here
@@ -415,7 +415,7 @@ function add_storage(client, drives, model) {
         var process = python.spawn(cockpit_atomic_storage, ["add", JSON.stringify(args)],
                                    {
                                        err: 'out',
-                                       superuser: true
+                                       superuser: "try"
                                    })
                 .done(function () {
                     if (docker_will_be_stopped) {
@@ -468,7 +468,7 @@ function reset_storage(client) {
         var process = python.spawn(cockpit_atomic_storage, ["reset-and-reduce"],
                                    {
                                        err: 'out',
-                                       superuser: true
+                                       superuser: "try"
                                    })
                 .done(function () {
                     client.connect().done(dfd.resolve);

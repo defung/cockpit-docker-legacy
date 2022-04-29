@@ -30,7 +30,7 @@ function docker_debug() {
 }
 
 /* This doesn't create a channel until a request */
-var http = cockpit.http("/var/run/docker.sock", { superuser: true });
+var http = cockpit.http("/var/run/docker.sock", { superuser: "try" });
 
 /**
  * pull:

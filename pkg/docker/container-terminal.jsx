@@ -193,7 +193,7 @@ class ContainerTerminal extends React.Component {
                     const channel = cockpit.channel({
                         payload: "stream",
                         unix: client.getAddress(),
-                        superuser: "require",
+                        superuser: "try",
                         binary: true
                     });
 
@@ -212,7 +212,7 @@ class ContainerTerminal extends React.Component {
         const channel = cockpit.channel({
             payload: "stream",
             unix: client.getAddress(),
-            superuser: "require",
+            superuser: "try",
             binary: true
         });
 

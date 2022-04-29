@@ -15,7 +15,7 @@ function manage_error(reject, error, content) {
 
 function connect(address) {
     /* This doesn't create a channel until a request */
-    const http = cockpit.http(address, { superuser: "require" });
+    const http = cockpit.http(address, { superuser: "try" });
     const connection = {};
 
     connection.monitor = function(options, callback, return_raw) {
