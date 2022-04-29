@@ -21,7 +21,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 import { Terminal } from "xterm";
-import { ErrorNotification } from './Notification.jsx';
+import { ErrorNotification } from './notification.jsx';
 
 import * as client from './client.js';
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
@@ -111,7 +111,7 @@ class ContainerTerminal extends React.Component {
         const realWidth = this.state.term._core._renderService.dimensions.actualCellWidth;
         const cols = Math.floor((width - padding) / realWidth);
         this.state.term.resize(cols, 24);
-        client.resizeContainersTTY(this.props.system, this.state.sessionId, this.props.tty, cols, 24)
+        client.resizeContainersTTY(this.state.sessionId, this.props.tty, cols, 24)
                 .catch(e => this.setState({ errorMessage: e.message }));
         this.setState({ cols: cols });
     }
@@ -189,17 +189,17 @@ class ContainerTerminal extends React.Component {
     }
 
     execAndConnect() {
-        client.execContainer(this.props.system, this.state.container)
+        client.execContainer(this.state.container)
                 .then(r => {
                     const channel = cockpit.channel({
                         payload: "stream",
-                        unix: client.getAddress(this.props.system),
-                        superuser: this.props.system ? "require" : null,
+                        unix: client.getAddress(),
+                        superuser: "require",
                         binary: true
                     });
 
                     const body = JSON.stringify({ Detach: false, Tty: false });
-                    channel.send("POST " + client.VERSION + "libpod/exec/" + encodeURIComponent(r.Id) +
+                    channel.send("POST " + client.VERSION + "exec/" + encodeURIComponent(r.Id) +
                               "/start HTTP/1.0\r\n" +
                               "Upgrade: WebSocket\r\nConnection: Upgrade\r\nContent-Length: " + body.length + "\r\n\r\n" + body);
 
@@ -212,12 +212,12 @@ class ContainerTerminal extends React.Component {
     connectToTty() {
         const channel = cockpit.channel({
             payload: "stream",
-            unix: client.getAddress(this.props.system),
-            superuser: this.props.system ? "require" : null,
+            unix: client.getAddress(),
+            superuser: "require",
             binary: true
         });
 
-        channel.send("POST " + client.VERSION + "libpod/containers/" + encodeURIComponent(this.state.container) +
+        channel.send("POST " + client.VERSION + "containers/" + encodeURIComponent(this.state.container) +
                       "/attach?&stdin=true&stdout=true&stderr=true HTTP/1.0\r\n" +
                       "Upgrade: WebSocket\r\nConnection: Upgrade\r\nContent-Length: 0\r\n\r\n");
 
@@ -272,7 +272,6 @@ ContainerTerminal.propTypes = {
     containerId: PropTypes.string.isRequired,
     containerStatus: PropTypes.string.isRequired,
     width: PropTypes.number.isRequired,
-    system: PropTypes.bool.isRequired,
     tty: PropTypes.bool,
 };
 

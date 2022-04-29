@@ -30,6 +30,7 @@ import * as Listing from 'cockpit-components-listing.jsx';
 import * as Select from 'cockpit-components-select.jsx';
 
 import ContainerLogs from './container-logs.jsx';
+import ContainerTerminal from './container-terminal.jsx';
 
 import moment from 'moment';
 
@@ -358,6 +359,10 @@ export class ContainerList extends React.Component {
                     name: _("Logs"),
                     renderer: ContainerLogs,
                     data: { containerId: container.Id, width: this.state.width }
+                }, {
+                    name: _("Console"),
+                    renderer: ContainerTerminal,
+                    data: { containerId: container.Id, containerStatus: container.State.Status, width: this.state.width, tty: container.Config.Tty }
                 }
             ];
             if (hasProblem) {
