@@ -816,6 +816,7 @@ function dockerCall(name, method, args, body) {
         method: method,
         path: VERSION + name,
         body: body || "",
+        headers: { "Content-Type": "application/json" },
         params: args,
     };
 
